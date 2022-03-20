@@ -1,1 +1,1 @@
-# vue-practice
+# vue-practice in Vue Mastery

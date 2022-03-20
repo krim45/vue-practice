@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script defer src="main.js"></script>
+  </head>
+  <body>
+    <div class="nav-bar"></div>
+
+    <div id="app">
+      <div class="product">
+        <!-- 속성 바인딩 -->
+        <div class="product-image">
+          <img v-bind:src="image" />
+          <!-- <img :src="image" /> -->
+        </div>
+
+        <div class="product-info">
+          <h1>{{ product }}</h1>
+
+          <!-- 조건부 렌더링 -->
+          <p v-if="inStock">In Stock</p>
+          <p v-else>Out of Stock</p>
+
+          <!-- 리스트 렌더링 -->
+          <ul>
+            <li v-for="detail in details">{{ detail }}</li>
+          </ul>
+
+          <div v-for="variant in variants" :key="variant.variantId">
+            <p @mouseover="updateProduct(variant.variantImage)">
+              {{ variant.variantColor }}
+            </p>
+          </div>
+
+          <!-- 이벤트 핸들링 -->
+          <button @click="addToCart">Add to Cart</button><br />
+          <button v-on:click="removeToCart" style="background-color: red">
+            Remove to Cart
+          </button>
+
+          <div class="cart">
+            <p>Cart({{ cart }})</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
