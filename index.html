@@ -23,21 +23,29 @@
 
           <!-- 조건부 렌더링 -->
           <p v-if="inStock">In Stock</p>
-          <p v-else>Out of Stock</p>
+          <p v-else :class="{ outOfStock: !inStock }">Out of Stock</p>
 
           <!-- 리스트 렌더링 -->
           <ul>
             <li v-for="detail in details">{{ detail }}</li>
           </ul>
 
-          <div v-for="variant in variants" :key="variant.variantId">
-            <p @mouseover="updateProduct(variant.variantImage)">
-              {{ variant.variantColor }}
-            </p>
-          </div>
+          <div
+            v-for="variant in variants"
+            :key="variant.variantId"
+            class="color-box"
+            :style="{ backgroundColor: variant.variantColor}"
+            @mouseover="updateProduct(variant.variantImage)"
+          ></div>
 
           <!-- 이벤트 핸들링 -->
-          <button @click="addToCart">Add to Cart</button><br />
+          <button
+            @click="addToCart"
+            :disabled="!inStock"
+            :class="{disabledButton: !inStock}"
+          >
+            Add to Cart</button
+          ><br />
           <button v-on:click="removeToCart" style="background-color: red">
             Remove to Cart
           </button>
