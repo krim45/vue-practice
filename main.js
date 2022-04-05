@@ -1,30 +1,89 @@
-var app = new Vue({
-  el: '#app',
-  data: {
-    brand: 'Vue Mastery',
-    product: 'Socks',
-    image:
-      'https://www.vuemastery.com/images/challenges/vmSocks-green-onWhite.jpg',
-    selectedVariant: 0,
-    details: ['80% cotton', '20% polyester', 'Gender-neutral'],
-    variants: [
-      {
-        variantId: 2234,
-        variantColor: 'green',
-        variantImage:
-          'https://www.vuemastery.com/images/challenges/vmSocks-green-onWhite.jpg',
-        variantQuantity: 10,
-      },
-      {
-        variantId: 2235,
-        variantColor: 'blue',
-        variantImage:
-          'https://www.vuemastery.com/images/challenges/vmSocks-blue-onWhite.jpg',
-        variantQuantity: 0,
-      },
-    ],
-    cart: 0,
-    onSale: true,
+Vue.component("product", {
+  props: {
+    premium: {
+      type: Boolean,
+      required: true
+    }
+  },
+  template: `
+  <div class="product">
+    <!-- 속성 바인딩 -->
+    <div class="product-image">
+      <img v-bind:src="image" />
+      <!-- <img :src="image" /> -->
+    </div>
+
+    <div class="product-info">
+      <!-- <h1>{{ brand }}{{ product }}</h1> -->
+      <h1>{{ title }}</h1>
+
+      <!-- 조건부 렌더링 -->
+      <p v-if="inStock">In Stock</p>
+      <p v-else :class="{ outOfStock: !inStock }">Out of Stock</p>
+
+      <!-- computed porperty -->
+      <p>{{ sale }}</p>
+      <p>User is premium: {{ premium }}</p>
+      <p>Shipping: {{ shipping }}</p>
+
+      <!-- 리스트 렌더링 -->
+      <ul>
+        <li v-for="detail in details">{{ detail }}</li>
+      </ul>
+
+      <div
+        v-for="(variant, index) in variants"
+        :key="variant.variantId"
+        class="color-box"
+        :style="{ backgroundColor: variant.variantColor}"
+        @mouseover="updateProduct(index)"
+      ></div>
+
+      <!-- 이벤트 핸들링 -->
+      <button
+        @click="addToCart"
+        :disabled="!inStock"
+        :class="{disabledButton: !inStock}"
+      >
+        Add to Cart</button
+      ><br />
+      <button v-on:click="removeToCart" style="background-color: red">
+        Remove to Cart
+      </button>
+
+      <div class="cart">
+        <p>Cart({{ cart }})</p>
+      </div>
+    </div>
+  </div>
+  `,
+  data() {
+    return {
+      brand: "Vue Mastery",
+      product: "Socks",
+      image:
+        "https://www.vuemastery.com/images/challenges/vmSocks-green-onWhite.jpg",
+      selectedVariant: 0,
+      details: ["80% cotton", "20% polyester", "Gender-neutral"],
+      variants: [
+        {
+          variantId: 2234,
+          variantColor: "green",
+          variantImage:
+            "https://www.vuemastery.com/images/challenges/vmSocks-green-onWhite.jpg",
+          variantQuantity: 10,
+        },
+        {
+          variantId: 2235,
+          variantColor: "blue",
+          variantImage:
+            "https://www.vuemastery.com/images/challenges/vmSocks-blue-onWhite.jpg",
+          variantQuantity: 0,
+        },
+      ],
+      cart: 0,
+      onSale: true,
+    }
   },
   methods: {
     addToCart() {
@@ -40,7 +99,7 @@ var app = new Vue({
   },
   computed: {
     title() {
-      return this.brand + ' ' + this.product;
+      return this.brand + " " + this.product;
     },
     image() {
       return this.variants[this.selectedVariant].variantImage;
@@ -50,9 +109,22 @@ var app = new Vue({
     },
     sale() {
       if (this.onSale) {
-        return this.brand + ' ' + this.product + ' are on sale!';
+        return this.brand + " " + this.product + " are on sale!";
       }
-      return this.brand + ' ' + this.product + ' are not on sale';
+      return this.brand + " " + this.product + " are not on sale";
     },
+    shipping() {
+      if (this.premium) {
+        return "Free"
+      }
+      return 2.99
+    }
   },
+}); 
+
+var app = new Vue({
+  el: "#app",
+  data: {
+    premium: false
+  }
 });
