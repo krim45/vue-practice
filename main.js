@@ -9,7 +9,7 @@ Vue.component("product", {
   <div class="product">
     <!-- 속성 바인딩 -->
     <div class="product-image">
-      <img v-bind:src="image" />
+      <img v-bind:src="variants[selectedVariant].variantImage" />
       <!-- <img :src="image" /> -->
     </div>
 
@@ -47,13 +47,9 @@ Vue.component("product", {
       >
         Add to Cart</button
       ><br />
-      <button v-on:click="removeToCart" style="background-color: red">
+      <button v-on:click="removeFromCart" style="background-color: red">
         Remove to Cart
       </button>
-
-      <div class="cart">
-        <p>Cart({{ cart }})</p>
-      </div>
     </div>
   </div>
   `,
@@ -78,19 +74,18 @@ Vue.component("product", {
           variantColor: "blue",
           variantImage:
             "https://www.vuemastery.com/images/challenges/vmSocks-blue-onWhite.jpg",
-          variantQuantity: 0,
+          variantQuantity: 8,
         },
       ],
-      cart: 0,
       onSale: true,
     }
   },
   methods: {
     addToCart() {
-      this.cart += 1;
+      this.$emit('add-to-cart', this.variants[this.selectedVariant].variantId);
     },
-    removeToCart() {
-      this.cart -= 1;
+    removeFromCart() {
+      this.$emit('remove-from-cart', this.variants[this.selectedVariant].variantId);
     },
     updateProduct(index) {
       this.selectedVariant = index;
@@ -125,6 +120,15 @@ Vue.component("product", {
 var app = new Vue({
   el: "#app",
   data: {
-    premium: false
+    premium: false,
+    cart: []
+  },
+  methods: {
+    updateCart(id) {
+      this.cart.push(id);
+    },
+    removeCart(id) {
+      this.cart = this.cart.filter(v => v !== id);
+    }
   }
 });
