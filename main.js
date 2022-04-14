@@ -1,9 +1,11 @@
-Vue.component("product", {
+var eventBus = new Vue();
+
+Vue.component('product', {
   props: {
     premium: {
       type: Boolean,
-      required: true
-    }
+      required: true,
+    },
   },
   template: `
   <div class="product">
@@ -53,85 +55,77 @@ Vue.component("product", {
       </div>
 
       <div>
-        <h2>Reviews</h2>
-        <p v-if="!reviews.length">These are no reviews yet.</p>
-        <ul>
-          <li v-for="review in reviews">
-            <p>{{ review.name }}</p>
-            <p>Rating: {{ review.rating }}</p>
-            <p>Review: {{ review.review }}</p>
-          </li>
-        </ul>
+        <product-tabs :reviews="reviews"></product-tabs>
       </div>
-
-      <product-review @review-submitted="addReview"></product-review>
   </div>
   `,
   data() {
     return {
-      brand: "Vue Mastery",
-      product: "Socks",
+      brand: 'Vue Mastery',
+      product: 'Socks',
       image:
-        "https://www.vuemastery.com/images/challenges/vmSocks-green-onWhite.jpg",
+        'https://www.vuemastery.com/images/challenges/vmSocks-green-onWhite.jpg',
       selectedVariant: 0,
-      details: ["80% cotton", "20% polyester", "Gender-neutral"],
+      details: ['80% cotton', '20% polyester', 'Gender-neutral'],
       variants: [
         {
           variantId: 2234,
-          variantColor: "green",
+          variantColor: 'green',
           variantImage:
-            "https://www.vuemastery.com/images/challenges/vmSocks-green-onWhite.jpg",
+            'https://www.vuemastery.com/images/challenges/vmSocks-green-onWhite.jpg',
           variantQuantity: 10,
         },
         {
           variantId: 2235,
-          variantColor: "blue",
+          variantColor: 'blue',
           variantImage:
-            "https://www.vuemastery.com/images/challenges/vmSocks-blue-onWhite.jpg",
+            'https://www.vuemastery.com/images/challenges/vmSocks-blue-onWhite.jpg',
           variantQuantity: 8,
         },
       ],
       onSale: true,
-      reviews: []
-    }
+      reviews: [],
+    };
   },
   methods: {
     addToCart() {
       this.$emit('add-to-cart', this.variants[this.selectedVariant].variantId);
     },
     removeFromCart() {
-      this.$emit('remove-from-cart', this.variants[this.selectedVariant].variantId);
+      this.$emit(
+        'remove-from-cart',
+        this.variants[this.selectedVariant].variantId
+      );
     },
     updateProduct(index) {
       this.selectedVariant = index;
       this.onSale = this.inStock > 0;
     },
-    addReview(productReview) {
-      this.reviews.push(productReview)
-    }
   },
   computed: {
     title() {
-      return this.brand + " " + this.product;
+      return this.brand + ' ' + this.product;
     },
-    // image() {
-    //   return this.variants[this.selectedVariant].variantImage;
-    // },
     inStock() {
       return this.variants[this.selectedVariant].variantQuantity;
     },
     sale() {
       if (this.onSale) {
-        return this.brand + " " + this.product + " are on sale!";
+        return this.brand + ' ' + this.product + ' are on sale!';
       }
-      return this.brand + " " + this.product + " are not on sale";
+      return this.brand + ' ' + this.product + ' are not on sale';
     },
     shipping() {
       if (this.premium) {
-        return "Free"
+        return 'Free';
       }
-      return 2.99
-    }
+      return 2.99;
+    },
+  },
+  mounted() {
+    eventBus.$on('review-submitted', (productReview) => {
+      this.reviews.push(productReview);
+    });
   },
 });
 
@@ -191,8 +185,8 @@ Vue.component('product-review', {
       review: null,
       rating: null,
       recommend: null,
-      errors: []
-    }
+      errors: [],
+    };
   },
   methods: {
     onSubmit() {
@@ -202,36 +196,76 @@ Vue.component('product-review', {
           name: this.name,
           review: this.review,
           rating: this.rating,
-          recommend: this.recommend
-        }
-        this.$emit('review-submitted', productReview)
-        this.name = null
-        this.review = null
-        this.rating = null
-        this.recommend = null
-      }
-      else {
-        if(!this.name) this.errors.push('Name required');
-        if(!this.rating) this.errors.push('Rating required');
-        if(!this.review) this.errors.push('Review required');
-        if(!this.recommend) this.errors.push('Recommendation required');
+          recommend: this.recommend,
+        };
+        eventBus.$emit('review-submitted', productReview);
+        this.name = null;
+        this.review = null;
+        this.rating = null;
+        this.recommend = null;
+      } else {
+        if (!this.name) this.errors.push('Name required');
+        if (!this.rating) this.errors.push('Rating required');
+        if (!this.review) this.errors.push('Review required');
+        if (!this.recommend) this.errors.push('Recommendation required');
       }
     },
-  }
-})
+  },
+});
+
+Vue.component('product-tabs', {
+  props: {
+    reviews: {
+      type: Array,
+      required: true,
+    },
+  },
+  template: `
+    <div>
+      <span
+        class="tab"
+        :class="{ activeTab: selectedTab === tab }"
+        v-for="(tab, index) in tabs"
+        :key="index"
+        @click="selectedTab = tab"
+        >{{ tab }}</span>
+
+      <div v-show="selectedTab === 'Reviews'">
+        <p v-if="!reviews.length">These are no reviews yet.</p>
+        <ul>
+          <li v-for="review in reviews">
+            <p>{{ review.name }}</p>
+            <p>Rating: {{ review.rating }}</p>
+            <p>Review: {{ review.review }}</p>
+          </li>
+        </ul>
+      </div>
+
+      <product-review
+        v-show="selectedTab === 'Make a Review'"
+      ></product-review>
+    </div>
+  `,
+  data() {
+    return {
+      tabs: ['Reviews', 'Make a Review'],
+      selectedTab: 'Reviews',
+    };
+  },
+});
 
 var app = new Vue({
-  el: "#app",
+  el: '#app',
   data: {
     premium: false,
-    cart: []
+    cart: [],
   },
   methods: {
     updateCart(id) {
       this.cart.push(id);
     },
     removeCart(id) {
-      this.cart = this.cart.filter(v => v !== id);
-    }
-  }
+      this.cart = this.cart.filter((v) => v !== id);
+    },
+  },
 });
